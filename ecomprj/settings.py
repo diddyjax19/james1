@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+# import django_heroku
 
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +23,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%o9!c3rf02q6usr!vw^s96^t*(dsv&ezbs)_u_k7^z1oa$ik0r'
+# SECRET_KEY = 'django-insecure-%o9!c3rf02q6usr!vw^s96^t*(dsv&ezbs)_u_k7^z1oa$ik0r'
+
+# # Use config value to replace information for security
+# SECRET_KEY = config('SECRET KEY')
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'cg#p$g+j9tax!#a3cup@1$8obt2_+&k3q+pmu)5%asj6yjpkag')
+
+# Read secret key from a file
+# with open('/etc/secret_key.txt') as f:
+#     SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+# SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = False
+
+ALLOWED_HOSTS = ['jammes.herokuapp.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -60,6 +75,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -145,6 +161,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # set static directories to point to static files
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+
 # set media path
 MEDIA_URL = '/media/'
 
@@ -188,5 +207,7 @@ CKEDITOR_CONFIGS = {
 }
 
 
-PAYPAL_RECEIVER_EMAIL = 'businessdestiny@gmail.com'
+PAYPAL_RECEIVER_EMAIL = 'nestifystore@gmail.com'
 PAYPAL_TEST = True
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
